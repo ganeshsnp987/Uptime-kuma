@@ -8,9 +8,9 @@ pipeline{
         SCANNER_HOME=tool 'sonar-scanner'
     }
     stages {
-        stage ("Git Pull"){
+        stage ("Git Checkout Code"){
             steps{
-                git branch: 'main', url: 'https://github.com/Aj7Ay/Uptime-kuma.git'
+                git branch: 'main', url: 'https://github.com/ganeshsnp987/Uptime-kuma.git'
             }
         }
         stage('Install Dependencies') {
@@ -29,7 +29,7 @@ pipeline{
         stage('Sonar-quality-gate') {
             steps {
                 script{
-                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
+                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar'
                 }
             }
         }
@@ -49,15 +49,15 @@ pipeline{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
                        sh "docker build -t uptime ."
-                       sh "docker tag uptime sevenajay/uptime:latest "
-                       sh "docker push sevenajay/uptime:latest "
+                       sh "docker tag uptime ganeshsnp987/uptime:latest"
+                       sh "docker push ganeshsnp987/uptime:latest"
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image sevenajay/uptime:latest > trivy.json" 
+                sh "trivy image ganeshsnp987/uptime:latest > trivy.json" 
             }
         }
         stage ("Remove container") {
@@ -68,7 +68,7 @@ pipeline{
         }
         stage('Deploy to container'){
             steps{
-                sh 'docker run -d --name uptime -v /var/run/docker.sock:/var/run/docker.sock -p 3001:3001 sevenajay/uptime:latest'
+                sh 'docker run -d --name uptime -v /var/run/docker.sock:/var/run/docker.sock -p 3001:3001 ganeshsnp987/uptime:latest'
             }
         }
     }
